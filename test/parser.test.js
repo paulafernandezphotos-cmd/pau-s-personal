@@ -82,4 +82,21 @@ const r = parseIncoming("help", opts);
 assert.strictEqual(r.type, "help");
 });
 
+check('"borra 4" command', () => {
+  const r = parseIncoming("borra 4", opts);
+  assert.strictEqual(r.type, "delete");
+  assert.strictEqual(r.id, 4);
+});
+
+check('"delete 12" command', () => {
+  const r = parseIncoming("delete 12", opts);
+  assert.strictEqual(r.type, "delete");
+  assert.strictEqual(r.id, 12);
+});
+
+check('"quita" without a number falls through to task_add (AI resolves it by description)', () => {
+  const r = parseIncoming("quita lo de comprar leche", opts);
+  assert.strictEqual(r.type, "task_add");
+});
+
 console.log("\nDone.");
