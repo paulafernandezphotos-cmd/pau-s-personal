@@ -103,6 +103,17 @@ function lastOpenItemBySender(createdBy) {
       .get(createdBy);
 }
 
+// Recent open items across both tasks and shopping, newest first, from
+// either sender - this is a shared household list, so either person might
+// ask to delete something the other one added. Used to give the AI
+// classifier enough context to resolve natural-language references like
+// "quita lo de comprar leche" or "borra la del plomero" to a specific id.
+function allOpenItems(limit = 20) {
+      const items = [...listOpen("task"), ...listOpen("shopping")];
+      items.sort((a, b) => b.id - a.id);
+      return items.slice(0, limit);
+}
+
 module.exports = {
 db,
 addItem,
@@ -116,4 +127,5 @@ nearbyTasks,
 openTasksWithoutDueDate,
   deleteItem,
   lastOpenItemBySender,
+      allOpenItems,
 };
