@@ -54,18 +54,7 @@ const items = rest
 return { type: "shopping_add", items };
 }
 
-let parsedDate = null;
-const esResults = chrono.es.parse(text, referenceDate, { forwardDate: true });
-if (esResults.length > 0 && esResults[0].start.isCertain("hour")) {
-parsedDate = esResults[0].start.date();
-} else {
-const enResults = chrono.en.parse(text, referenceDate, { forwardDate: true });
-if (enResults.length > 0 && enResults[0].start.isCertain("hour")) {
-parsedDate = enResults[0].start.date();
-}
-}
-
-const assignedTo = findMentionedName(text);
+const { dueAt: parsedDate, assignedTo } = extractTaskDetails(text, { referenceDate });
 
 return {
 type: "task_add",
@@ -75,4 +64,23 @@ assignedTo,
 };
 }
 
-module.exports = { parseIncoming, SHOPPING_TRIGGERS, LIST_WORDS, DONE_WORDS, HELP_WORDS };
+// Pulls a due date/time (if any) and a mentioned household member (if any)
+// out of a piece of text. Shared by parseIncoming's task branch and by the
+// AI-driven split-task flow in server.js, which re-runs this per new
+// sub-task so each split piece can carry its own time/assignee.
+function extractTaskDetails(text, { referenceDate = new Date() } = {}) {
+    let parsedDate = null;
+    const esResults = chrono.es.parse(text, referenceDate, { forwardDate: true });
+    if (esResults.length > 0 && esResults[0].start.isCertain("hour")) {
+          parsedDate = esResults[0].start.date();
+    } else {
+          const enResults = chrono.en.parse(text, referenceDate, { forwardDate: true });
+          if (enResults.length > 0 && enResults[0].start.isCertain("hour")) {
+                  parsedDate = enResults[0].start.date();
+          }
+    }
+    const assignedTo = findMentionedName(text);
+    return { dueAt: parsedDate, assignedTo };
+}
+
+module.exports = { parseIncoming, extractTaskDetails, SHOPPING_TRIGGERS, LIST_WORDS, DONE_WORDS, HELP_WORDS };
