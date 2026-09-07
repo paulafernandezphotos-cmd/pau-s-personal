@@ -5,6 +5,7 @@ const SHOPPING_TRIGGERS = ["compra", "comprar", "compras", "super", "mercado", "
 const LIST_WORDS = ["list", "lista", "listar", "ver lista"];
 const DONE_WORDS = ["done", "listo", "hecho", "completado", "complete"];
 const HELP_WORDS = ["help", "ayuda"];
+const DELETE_WORDS = ["delete", "borra", "borrar", "elimina", "eliminar", "quita", "quitar"];
 
 function firstWord(text) {
 return text.trim().split(/\s+/)[0]?.toLowerCase() || "";
@@ -22,6 +23,7 @@ return text.trim().split(/\s+/).slice(1).join(" ").trim();
 *  { type: 'list' }
 *  { type: 'done', id: number }
 *  { type: 'done_invalid' }
+ * { type: 'delete', id: number }
 *  { type: 'shopping_add', items: string[] }
 *  { type: 'task_add', text: string, dueAt: Date|null, assignedTo: string|null }
 *  { type: 'unrecognized' }
@@ -42,6 +44,17 @@ const match = rest.match(/\d+/);
 if (!match) return { type: "done_invalid" };
 return { type: "done", id: parseInt(match[0], 10) };
 }
+
+    // "borra 4" / "delete 4" - reliable number-based delete, same fast path
+    // as "done". If there's no number ("quita lo de comprar leche"), don't
+    // handle it here - fall through so the AI classifier can match it by
+    // description against the open items list instead of forcing a rigid
+    // "write borra <number>" reply.
+    if (DELETE_WORDS.includes(first)) {
+        const rest = stripLeadingWord(text);
+        const match = rest.match(/\d+/);
+        if (match) return { type: "delete", id: parseInt(match[0], 10) };
+    }
 
 if (SHOPPING_TRIGGERS.includes(first)) {
 let rest = stripLeadingWord(text);
@@ -83,4 +96,4 @@ function extractTaskDetails(text, { referenceDate = new Date() } = {}) {
     return { dueAt: parsedDate, assignedTo };
 }
 
-module.exports = { parseIncoming, extractTaskDetails, SHOPPING_TRIGGERS, LIST_WORDS, DONE_WORDS, HELP_WORDS };
+module.exports = { parseIncoming, extractTaskDetails, SHOPPING_TRIGGERS, LIST_WORDS, DONE_WORDS, HELP_WORDS , DELETE_WORDS};
