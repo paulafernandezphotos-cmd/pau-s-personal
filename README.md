@@ -19,6 +19,8 @@ in English or Spanish either way - only what it says back changed.
 - **Send it a voice note instead of typing** - it transcribes it (via Groq's
 Whisper API), tells you what it heard, then handles it exactly like a
 typed message.
+- **Follow-up messages are understood, not just added literally.** If a
+message isn't a recognized command, an AI step (Groq chat, optional - same key as voice notes) figures out what you actually meant instead of dumping your words in as a new task. E.g. after adding a task, "divide eso en dos: llamar al plomero y comprar el repuesto" replaces it with two separate tasks; a stray question gets a short reply instead of becoming a to-do item.
 
 It runs as a small always-on web server (so it can send reminders even when
 nobody has the app open), talking to WhatsApp through Meta's official
