@@ -89,6 +89,20 @@ return db
 .all();
 }
 
+function deleteItem(id) {
+    const info = db.prepare(`DELETE FROM items WHERE id = ?`).run(id);
+    return info.changes > 0;
+}
+
+// The most recent still-open item a given person added - used to resolve
+// follow-up references like "split that into two" ("eso"/"esa tarea").
+function lastOpenItemBySender(createdBy) {
+    if (!createdBy) return null;
+    return db
+      .prepare(`SELECT * FROM items WHERE created_by = ? AND done = 0 ORDER BY id DESC LIMIT 1`)
+      .get(createdBy);
+}
+
 module.exports = {
 db,
 addItem,
@@ -100,4 +114,6 @@ sentOffsets,
 markReminderOffsetSent,
 nearbyTasks,
 openTasksWithoutDueDate,
+  deleteItem,
+  lastOpenItemBySender,
 };
