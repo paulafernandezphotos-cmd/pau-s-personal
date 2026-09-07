@@ -14,7 +14,7 @@
 // returns null, and the caller falls back to the old "just add it as a
 // task" behavior - a Groq outage should never make the bot unusable.
 
-const GROQ_CHAT_MODEL = process.env.GROQ_CHAT_MODEL || "llama-3.3-70b-versatile";
+const GROQ_CHAT_MODEL = process.env.GROQ_CHAT_MODEL || "openai/gpt-oss-20b";
 const GROQ_CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 const TIMEOUT_MS = 8000;
 
